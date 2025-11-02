@@ -7,9 +7,6 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.resolve(path.dirname(__filename), "..");
 
-import authRoutes from "../src/infrastructure/api/express/routes/auth.js";
-import studentRoutes from "../src/infrastructure/api/express/routes/student.js";
-
 const app = express();
 
 app.use(express.json());
@@ -49,9 +46,9 @@ app.get("/home", (req: Request, res: Response) => {
   res.send("Welcome in node & typescript api!");
 });
 
-app.use("/student", studentRoutes);
+// app.use("/student", studentRoutes);
 
-app.use("/auth", authRoutes);
+// app.use("/auth", authRoutes);
 
 //#endregion
 
