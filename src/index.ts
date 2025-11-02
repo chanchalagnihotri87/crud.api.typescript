@@ -45,7 +45,7 @@ const fileFilter = (req, file, cb) => {
 //USE CASE 2: Use conditional callback which can be integrated on required callback.
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/home", (req: Request, res: Response) => {
   res.send("Welcome in node & typescript api!");
 });
 
