@@ -58,7 +58,7 @@ app.get("/home", (req: Request, res: Response) => {
 
 //Database connection
 // mongoConnect(() => {
-app.listen(process.env.PORT ?? 3000, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log("Your application is running");
 });
 // });
