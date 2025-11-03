@@ -7,6 +7,6 @@ export default class DeleteStudent implements IUseCase<boolean> {
   async call(studentId: string): Promise<boolean> {
     var deleteResult = await this.studentRepo.deletesync(studentId);
 
-    return deleteResult.deletedCount > 0;
+    return true;
   }
 }
