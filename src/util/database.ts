@@ -4,7 +4,9 @@ const MongoClient = mongodb.MongoClient;
 let _db: mongodb.Db;
 
 const mongoConnect = (callback: () => void): void => {
-  MongoClient.connect("mongodb://localhost:27017/studentdb")
+  const monogUri =
+    process.env.MONGO_URI || "mongodb://localhost:27017/studentdb";
+  MongoClient.connect(monogUri)
     .then((client) => {
       console.log("Database Connected!");
       _db = client.db();
