@@ -50,6 +50,10 @@ app.get("/home", (req: Request, res: Response) => {
   res.send("Welcome in node & typescript api!");
 });
 
+app.get("/", (req: Request, res: Response) => {
+  res.send("Welcome in node & typescript api!");
+});
+
 // app.use("/student", studentRoutes);
 
 // app.use("/auth", authRoutes);
