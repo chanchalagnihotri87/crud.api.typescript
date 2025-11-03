@@ -1,8 +1,8 @@
 import { Container } from "inversify";
-import StudentRepository from "../../infrastructure/data-access/ms-sql/MSSQLStudentRepository.js";
+import MSSQLStudentRepository from "../../data-access/ms-sql/MSSQLStudentRepository.js";
 
 const container: Container = new Container();
 
-container.bind(StudentRepository).toSelf();
+container.bind(MSSQLStudentRepository).toSelf();
 
 export default container;

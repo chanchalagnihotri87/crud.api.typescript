@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import * as fs from "fs";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
@@ -22,7 +22,15 @@ const studentController = new StudentController(
 
 const JWT_SECRET = "thisismyjsonsecret";
 
-const authenticateToken = (req, res, next) => {
+interface ApiRequest extends Request {
+  user: jwt.JwtPayload;
+}
+
+const authenticateToken = (
+  req: ApiRequest,
+  res: Response,
+  next: NextFunction
+) => {
   const authHeader = req.headers["authorization"];
 
   console.log("authorization header:");
@@ -75,7 +83,7 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 const router = express.Router();
 
-router.get("/getAll", async (req, res) => {
+router.get("/getAll", async (req: Request, res: Response) => {
   console.log("Calling from route file");
   let pageNo = parseInt(req.query.pageNo?.toString() ?? "1") ?? 1;
 
@@ -92,7 +100,7 @@ router.get("/getAll", async (req, res) => {
   });
 });
 
-router.get("/get/:id", async (req, res) => {
+router.get("/get/:id", async (req: Request, res: Response) => {
   const studentId = req.params.id!;
 
   const student = await studentController.get(studentId);
@@ -102,9 +110,8 @@ router.get("/get/:id", async (req, res) => {
 
 router.post(
   "/add",
-  authenticateToken,
   upload.single("photoFile"),
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     const sourceFile = path.join(
       __dirname,
       req.file!.destination,
@@ -146,9 +153,8 @@ router.post(
 
 router.put(
   "/update",
-  authenticateToken,
   upload.single("photoFile"),
-  async (req, res) => {
+  async (req: Request, res: Response) => {
     if (req.file) {
       const sourceFile = path.join(
         __dirname,
@@ -187,7 +193,7 @@ router.put(
   }
 );
 
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", async (req: Request, res: Response) => {
   const studentId = req.params.id!;
   await studentController.delete(studentId);
   res.send({});
