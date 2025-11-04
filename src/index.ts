@@ -3,7 +3,6 @@ import type { Request, Response } from "express";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import studentRoutes from "../src/infrastructure/api/express/routes/student.js";
 import { mongoConnect } from "./util/database.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.resolve(path.dirname(__filename), "..");
@@ -25,7 +24,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Welcome in node & typescript api!");
 });
 
-app.use("/student", studentRoutes);
+// app.use("/student", studentRoutes);
 
 // app.use("/auth", authRoutes);
 
