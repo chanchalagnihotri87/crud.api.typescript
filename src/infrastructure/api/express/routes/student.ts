@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 import multer from "multer";
 import path from "path";
+import { fileURLToPath } from "url";
 import StudentController from "../../../../controllers/student.js";
 import CreateUser from "../../../../use-cases/student/creat.js";
 import DeleteStudent from "../../../../use-cases/student/delete.js";
@@ -116,35 +117,39 @@ router.post(
   "/add",
   upload.single("photoFile"),
   async (req: Request, res: Response) => {
-    const sourceFile = path.join(
-      __dirname,
-      req.file!.destination,
-      req.file!.filename
-    );
+    if (req.file) {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const sourceFile = path.join(
+        __dirname,
+        req.file!.destination,
+        req.file!.filename
+      );
 
-    const destinationFile = path.join(
-      __dirname,
-      "public",
-      "images",
-      "students",
-      req.file!.filename
-    );
+      const destinationFile = path.join(
+        __dirname,
+        "public",
+        "images",
+        "students",
+        req.file!.filename
+      );
 
-    fs.rename(sourceFile, destinationFile, (err) => {
-      if (err) {
-        console.log("Error occured while moving file to student directory");
-        console.log(err);
-        throw err;
-      }
+      fs.rename(sourceFile, destinationFile, (err) => {
+        if (err) {
+          console.log("Error occured while moving file to student directory");
+          console.log(err);
+          throw err;
+        }
 
-      //When no error occured
-    });
-
+        //When no error occured
+      });
+    }
     const { name, rollNo, clas } = req.body;
 
-    const photo = req.file!.filename;
-    req.body.photo = photo;
-
+    if (req.file) {
+      const photo = req.file!.filename;
+      req.body.photo = photo;
+    }
     console.log("Going to create student with student controller.");
 
     await studentController.create(req);
@@ -160,6 +165,8 @@ router.put(
   upload.single("photoFile"),
   async (req: Request, res: Response) => {
     if (req.file) {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
       const sourceFile = path.join(
         __dirname,
         req.file!.destination,

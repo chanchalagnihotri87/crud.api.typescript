@@ -6,7 +6,7 @@ let _db: mongodb.Db;
 const mongoConnect = (callback: () => void): void => {
   const monogUri =
     process.env.MONGO_URI ||
-    "mongodb+srv://chanchal:chanchal@cluster0.50iio.mongodb.net/?appName=Cluster0";
+    "mongodb+srv://chanchal:chanchal@studentdb.jbwy0ke.mongodb.net/studentdb";
   // process.env.MONGO_URI || "mongodb://localhost:27017/studentdb";
   MongoClient.connect(monogUri)
     .then((client) => {
