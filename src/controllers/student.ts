@@ -16,6 +16,8 @@ export default class StudentController {
   async create(request: IRequest): Promise<{ success: boolean }> {
     const payload = request.body;
 
+    //Made some changes.
+
     const student = await this.createStudent.call(payload);
 
     return { success: !student._id };
