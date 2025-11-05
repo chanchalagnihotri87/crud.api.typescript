@@ -11,6 +11,7 @@ import DeleteStudent from "../../../../use-cases/student/delete.js";
 import GetStudent from "../../../../use-cases/student/get.js";
 import GetAllStudents from "../../../../use-cases/student/getAll.js";
 import UpdateStudent from "../../../../use-cases/student/update.js";
+import { downloadBlob, uploadFile } from "../../../../util/azurefilestorage.js";
 import container from "../../../dependency-injection/alwx/container.js";
 
 const studentController = new StudentController(
@@ -118,38 +119,12 @@ router.post(
   upload.single("photoFile"),
   async (req: Request, res: Response) => {
     if (req.file) {
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
-      const sourceFile = path.join(
-        __dirname,
-        req.file!.destination,
-        req.file!.filename
-      );
+      await saveFile(req);
 
-      const destinationFile = path.join(
-        __dirname,
-        "public",
-        "images",
-        "students",
-        req.file!.filename
-      );
-
-      fs.rename(sourceFile, destinationFile, (err) => {
-        if (err) {
-          console.log("Error occured while moving file to student directory");
-          console.log(err);
-          throw err;
-        }
-
-        //When no error occured
-      });
-    }
-    const { name, rollNo, clas } = req.body;
-
-    if (req.file) {
       const photo = req.file!.filename;
       req.body.photo = photo;
     }
+
     console.log("Going to create student with student controller.");
 
     await studentController.create(req);
@@ -160,39 +135,75 @@ router.post(
   }
 );
 
+const saveFile = async (req: Request) => {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.resolve(path.dirname(__filename), "../../../../../");
+
+  console.log("__dirname:");
+  console.log(__dirname);
+  const sourceFile = path.join(
+    __dirname,
+    req.file!.destination,
+    req.file!.filename
+  );
+  const host = req.hostname; // or req.ip
+
+  if (host === "localhost" || host === "127.0.0.1") {
+    const destinationFile = path.join(
+      __dirname,
+      "public",
+      "images",
+      "students",
+      req.file!.filename
+    );
+
+    fs.rename(sourceFile, destinationFile, (err) => {
+      if (err) {
+        console.log("Error occured while moving file to student directory");
+        console.log(err);
+        throw err;
+      }
+
+      //When no error occured
+    });
+  } else {
+    console.log("Going to upload file to azure storage");
+    await uploadFile("images", req.file!.filename, sourceFile);
+    console.log("Uploaded file to azure storage");
+  }
+};
+
+router.get("/image/:fileName", async (req: Request, res: Response) => {
+  const fileName = req.params.fileName!;
+
+  const host = req.hostname;
+
+  if (host === "localhost" || host === "127.0.0.1") {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.resolve(path.dirname(__filename), "../../../../../");
+    const filePatch = path.join(
+      __dirname,
+      "public",
+      "images",
+      "students",
+      fileName
+    );
+
+    res.sendFile(filePatch);
+  } else {
+    const blobBuffer = await downloadBlob("images", fileName);
+
+    res.setHeader("Content-Type", "image/jpeg"); // Adjust content type as needed
+    res.send(blobBuffer);
+  }
+});
+
 router.put(
   "/update",
   upload.single("photoFile"),
   async (req: Request, res: Response) => {
     if (req.file) {
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
-      const sourceFile = path.join(
-        __dirname,
-        req.file!.destination,
-        req.file!.filename
-      );
-
-      const destinationFile = path.join(
-        __dirname,
-        "public",
-        "images",
-        "students",
-        req.file!.filename
-      );
-
-      fs.rename(sourceFile, destinationFile, (err) => {
-        if (err) {
-          console.log("Error occured while moving file to student directory");
-          console.log(err);
-          throw err;
-        }
-
-        //When no error occured
-      });
-    }
-
-    if (req.file) {
+      await saveFile(req);
       req.body.photo = req.file!.filename;
     }
 
