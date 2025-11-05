@@ -42,7 +42,7 @@ export async function uploadBlob(
         access: "blob", // or 'container' or 'private'
       });
 
-    if (createResponse?.succeeded) {
+    if (createResponse) {
       console.log(`Container created: ${containerName}`);
     }
 
@@ -280,7 +280,7 @@ export async function getBlobUrlWithSAS(
     const blobClient = containerClient.getBlobClient(blobName);
 
     // Parse connection string to get account name and key
-    const parts = connectionString.split(";");
+    const parts = connectionString!.split(";");
     const accountNamePart = parts.find((p) => p.startsWith("AccountName="));
     const accountKeyPart = parts.find((p) => p.startsWith("AccountKey="));
 
@@ -292,8 +292,8 @@ export async function getBlobUrlWithSAS(
     const accountKey = accountKeyPart.split("=")[1];
 
     const sharedKeyCredential = new StorageSharedKeyCredential(
-      accountName,
-      accountKey
+      accountName!,
+      accountKey!
     );
 
     const sasToken = generateBlobSASQueryParameters(
