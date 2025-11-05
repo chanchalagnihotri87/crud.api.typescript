@@ -8,10 +8,6 @@ import { mongoConnect } from "./util/database.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.resolve(path.dirname(__filename), "..");
 
-import dotenv from "dotenv";
-
-dotenv.config();
-
 const app = express();
 
 app.use(express.json());

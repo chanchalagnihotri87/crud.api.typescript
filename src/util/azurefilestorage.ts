@@ -10,10 +10,6 @@ import {
   StorageSharedKeyCredential,
 } from "@azure/storage-blob";
 
-import dotenv from "dotenv";
-
-dotenv.config();
-
 // Get connection string from environment variable
 const connectionString =
   process.env.AZURE_STORAGE_CONNECTION_STRING ||
