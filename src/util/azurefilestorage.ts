@@ -15,7 +15,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Get connection string from environment variable
-const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const connectionString =
+  process.env.AZURE_STORAGE_CONNECTION_STRING ||
+  "DefaultEndpointsProtocol=https;AccountName=typescriptcrudapistorage;AccountKey=LzOUKO+oEP17bX20UmriHRHAGhG363gULZjSMJEKRWo7yLMra9sbGrmJO6bP6vPndDwSXKl6U10f+AStacEdxA==;EndpointSuffix=core.windows.net";
 
 if (!connectionString) {
   throw new Error("AZURE_STORAGE_CONNECTION_STRING is not set");
