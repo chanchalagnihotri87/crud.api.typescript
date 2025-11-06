@@ -41,3 +41,5 @@ const fileFilter = (
 
 //USE CASE 2: Use conditional callback which can be integrated on required callback.
 const upload = multer({ storage: azureStorage, fileFilter: fileFilter });
+
+export default upload;

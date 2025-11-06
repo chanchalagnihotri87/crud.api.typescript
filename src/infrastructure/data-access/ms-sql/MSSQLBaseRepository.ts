@@ -10,7 +10,7 @@ import {
   UpdateFilter,
   WithId,
 } from "mongodb";
-import { getDb } from "../../../util/database.js";
+import { getDb } from "../../util/database.js";
 import IBaseRepository from "../interfaces/IBaseRepository.js";
 
 abstract class MSSQLBaseRepository<T extends Document>
