@@ -3,6 +3,7 @@ import * as fs from "fs";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 import multer from "multer";
+import { MulterAzureStorage } from "multer-azure-blob-storage";
 import path from "path";
 import { fileURLToPath } from "url";
 import StudentController from "../../../../controllers/student.js";
@@ -54,14 +55,33 @@ const authenticateToken = (
   });
 };
 
-//#region  Storage With Multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
+// //#region  Storage With Multer
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, "uploads/");
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + path.extname(file.originalname));
+//   },
+// });
+
+const azureStorage = new MulterAzureStorage({
+  connectionString:
+    process.env.AZURE_STORAGE_CONNECTION_STRING ||
+    "DefaultEndpointsProtocol=https;AccountName=typescriptcrudapistorage;AccountKey=LzOUKO+oEP17bX20UmriHRHAGhG363gULZjSMJEKRWo7yLMra9sbGrmJO6bP6vPndDwSXKl6U10f+AStacEdxA==;EndpointSuffix=core.windows.net", // or accountName and accountKey
+  accessKey:
+    "LzOUKO+oEP17bX20UmriHRHAGhG363gULZjSMJEKRWo7yLMra9sbGrmJO6bP6vPndDwSXKl6U10f+AStacEdxA==",
+  accountName: "typescriptcrudapistorage",
+  containerName: "images",
+  blobName: (req, file) => {
+    const fileName = Date.now() + "-" + file.originalname;
+    return new Promise((resolve) =>
+      setTimeout(() => {
+        resolve(fileName);
+      }, 100)
+    );
+  }, // Customize blob name
+  // Optional: customize metadata, content settings
 });
 
 const fileFilter = (
@@ -83,7 +103,7 @@ const fileFilter = (
 // );
 
 //USE CASE 2: Use conditional callback which can be integrated on required callback.
-const upload = multer({ storage: storage, fileFilter: fileFilter });
+const upload = multer({ storage: azureStorage, fileFilter: fileFilter });
 
 //#endregion
 
@@ -119,9 +139,7 @@ router.post(
   upload.single("photoFile"),
   async (req: Request, res: Response) => {
     if (req.file) {
-      await saveFile(req);
-
-      const photo = req.file!.filename;
+      const photo = (req.file as any).blobName;
       req.body.photo = photo;
     }
 
@@ -176,26 +194,10 @@ const saveFile = async (req: Request) => {
 router.get("/image/:fileName", async (req: Request, res: Response) => {
   const fileName = req.params.fileName!;
 
-  const host = req.hostname;
+  const blobBuffer = await downloadBlob("images", fileName);
 
-  if (host === "localhost" || host === "127.0.0.1") {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.resolve(path.dirname(__filename), "../../../../../");
-    const filePatch = path.join(
-      __dirname,
-      "public",
-      "images",
-      "students",
-      fileName
-    );
-
-    res.sendFile(filePatch);
-  } else {
-    const blobBuffer = await downloadBlob("images", fileName);
-
-    res.setHeader("Content-Type", "image/jpeg"); // Adjust content type as needed
-    res.send(blobBuffer);
-  }
+  res.setHeader("Content-Type", "image/jpeg"); // Adjust content type as needed
+  res.send(blobBuffer);
 });
 
 router.put(
@@ -203,8 +205,7 @@ router.put(
   upload.single("photoFile"),
   async (req: Request, res: Response) => {
     if (req.file) {
-      await saveFile(req);
-      req.body.photo = req.file!.filename;
+      req.body.photo = (req.file as any).blobName;
     }
 
     req.body._id = ObjectId.createFromHexString(req.body.studentId);
