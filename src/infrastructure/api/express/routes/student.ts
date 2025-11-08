@@ -7,6 +7,7 @@ import GetStudent from "../../../../use-cases/student/get.js";
 import GetAllStudents from "../../../../use-cases/student/getAll.js";
 import UpdateStudent from "../../../../use-cases/student/update.js";
 import container from "../../../dependency-injection/alwx/container.js";
+import authenticate from "../../../util/authenticate.js";
 import { downloadBlob } from "../../../util/azurefilestorage.js";
 import upload from "../../../util/upload.js";
 
@@ -20,7 +21,7 @@ const studentController = new StudentController(
 
 const router = express.Router();
 
-router.get("/getAll", async (req: Request, res: Response) => {
+router.get("/getAll", authenticate, async (req: Request, res: Response) => {
   console.log("Calling from route file");
   let pageNo = parseInt(req.query.pageNo?.toString() ?? "1") ?? 1;
 
@@ -37,7 +38,7 @@ router.get("/getAll", async (req: Request, res: Response) => {
   });
 });
 
-router.get("/get/:id", async (req: Request, res: Response) => {
+router.get("/get/:id", authenticate, async (req: Request, res: Response) => {
   const studentId = req.params.id!;
 
   const student = await studentController.get(studentId);
@@ -47,6 +48,7 @@ router.get("/get/:id", async (req: Request, res: Response) => {
 
 router.post(
   "/add",
+  authenticate,
   upload.single("photoFile"),
   async (req: Request, res: Response) => {
     if (req.file) {
@@ -75,6 +77,7 @@ router.get("/image/:fileName", async (req: Request, res: Response) => {
 
 router.put(
   "/update",
+  authenticate,
   upload.single("photoFile"),
   async (req: Request, res: Response) => {
     if (req.file) {
@@ -89,11 +92,15 @@ router.put(
   }
 );
 
-router.delete("/delete/:id", async (req: Request, res: Response) => {
-  const studentId = req.params.id!;
-  await studentController.delete(studentId);
-  res.send({});
-});
+router.delete(
+  "/delete/:id",
+  authenticate,
+  async (req: Request, res: Response) => {
+    const studentId = req.params.id!;
+    await studentController.delete(studentId);
+    res.send({});
+  }
+);
 
 export default router;
 

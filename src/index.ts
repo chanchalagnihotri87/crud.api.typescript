@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import authRoutes from "./infrastructure/api/express/routes/auth.js";
 import studentRoutes from "./infrastructure/api/express/routes/student.js";
 import { mongoConnect } from "./infrastructure/util/database.js";
 const __filename = fileURLToPath(import.meta.url);
@@ -27,7 +28,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/student", studentRoutes);
 
-// app.use("/auth", authRoutes);
+app.use("/auth", authRoutes);
 
 //#endregion
 

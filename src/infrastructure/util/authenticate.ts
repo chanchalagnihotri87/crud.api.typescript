@@ -7,7 +7,7 @@ interface ApiRequest extends Request {
   user: jwt.JwtPayload;
 }
 
-const authenticate = (req: ApiRequest, res: Response, next: NextFunction) => {
+const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"];
 
   console.log("authorization header:");
